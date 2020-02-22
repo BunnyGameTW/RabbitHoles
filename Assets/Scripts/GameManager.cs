@@ -1,43 +1,53 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
+using System.Linq;
 public class GameManager : MonoBehaviour
 {
     public GameObject player;
-    const float SPEED = 10.0f;
-    const float CHECK_DISTANCE = 0.1f;
-    Vector2 targetPosition;
     PlayerBehavior playerBehavior;
+    bool isAnimate;
     // Start is called before the first frame update
     void Start()
     {
-        targetPosition = player.transform.position;
+        isAnimate = false;
         playerBehavior = player.GetComponentInChildren<PlayerBehavior>();
+
+        var clickables = FindObjectsOfType<MonoBehaviour>().OfType<IClickable>();
+        foreach (IClickable clickable in clickables)
+        {
+
+            clickable.onClicked += OnItemClicked;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            ;
-            targetPosition = new Vector2(Camera.main.ScreenToWorldPoint(Input.mousePosition).x , player.transform.position.y);
-            Debug.Log(targetPosition);
-        }
-        MovePlayer();
+        CheckItems();
+        PlayerInput();
     }
-    void MovePlayer()
-    {
-        Vector2 playerPosition = player.transform.position;
-        if (Mathf.Abs(targetPosition.x - playerPosition.x) > CHECK_DISTANCE)
-        {
-            playerBehavior.SetState(PlayerBehavior.STATE.MOVE);
-            player.transform.position = Vector2.MoveTowards(playerPosition, targetPosition, Time.deltaTime * SPEED);
-        }
-        else
-        {
 
+    void CheckItems()
+    {
+      //  Debug.Log("CheckItems");
+    }
+
+    void PlayerInput()
+    {
+        
+        if (Input.GetMouseButtonDown(0) && !isAnimate)
+        {
+            Debug.Log("PlayerInput");
+            playerBehavior.SetTarget(new Vector2(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, player.transform.position.y));
         }
+    }
+
+    void OnItemClicked(object sender, EventArgs e)
+    {
+        // TODO: 處理事件
+        isAnimate = true;
+        Debug.Log(sender);
     }
 }
