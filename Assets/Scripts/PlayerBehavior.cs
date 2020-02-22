@@ -13,17 +13,21 @@ public class PlayerBehavior : MonoBehaviour
     SpriteRenderer emotionSprite;
     const float SPEED = 10.0f;
     const float CHECK_DISTANCE = 0.1f;
+    const float STOP_DISTANCE = 1.0f;
 
     void Start()
     {
         canMove = true;
         targetPosition = transform.position;
-        charAnimator = GetComponentsInChildren<Animator>()[0];
-        emotionAnimator = GetComponentsInChildren<Animator>()[1];
+        charAnimator = GetComponentsInChildren<Animator>()[1];
+        emotionAnimator = GetComponentsInChildren<Animator>()[2];
         state = STATE.IDLE;
         emotionSprite = GetComponentsInChildren<SpriteRenderer>()[1];
     }
-
+    private void OnEnable()
+    {
+        targetPosition = transform.position;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -39,8 +43,6 @@ public class PlayerBehavior : MonoBehaviour
         switch (state)
         {
             case STATE.MOVE:
-                emotionSprite.enabled = true;
-                emotionAnimator.SetTrigger("Heart");
                 charAnimator.SetBool("isMove", true);
                 break;
             case STATE.IDLE:
@@ -62,8 +64,21 @@ public class PlayerBehavior : MonoBehaviour
 
     void Move()
     {
+       
+
         Vector2 playerPosition = transform.position;
         float offsetX = targetPosition.x - playerPosition.x;
+
+
+        Vector2 direction = offsetX > 0 ? Vector2.right : Vector2.left;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position + new Vector3(offsetX > 0 ? 1: -1, 0, 0), direction, CHECK_DISTANCE);
+        Debug.DrawRay(transform.position + new Vector3(offsetX > 0 ? 1 : -1, 0, 0), direction, Color.green);
+        if (hit.collider != null && hit.collider.gameObject.name != "player" && Mathf.Abs(offsetX) < STOP_DISTANCE)
+        {
+            offsetX = 0;
+            targetPosition.x = transform.position.x;
+        }
+
         if (Mathf.Abs(offsetX) > CHECK_DISTANCE)
         {
             GetComponentInChildren<SpriteRenderer>().flipX = offsetX > 0;

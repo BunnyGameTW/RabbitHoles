@@ -33,12 +33,14 @@ public class Box : Item, IClickable
         {
             onClicked?.Invoke(this, EventArgs.Empty);
             isClick = true;
-            //TODO 生出一隻母兔子 和兔子生小孩
-            Instantiate(rabbit, transform.position, transform.rotation);
-            //TODO 波爆炸特效後刪除
-
-            Destroy(gameObject);
+            GetComponent<Animator>().SetBool("isHit", true);
+            //Destroy(gameObject);
 
         }
+    }
+
+    public void HitAnimationEnd()
+    {
+        Destroy(gameObject);
     }
 }
