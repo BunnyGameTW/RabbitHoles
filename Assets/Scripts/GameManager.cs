@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public GameObject rabbit;
     public Image fadeImage;
     public Text clearText;
+    public GameObject soundManager;
+    public AudioClip clear;
     PlayerBehavior playerBehavior;
     bool isAnimate, isFadeOut;
     float scale = 0;
@@ -28,6 +30,11 @@ public class GameManager : MonoBehaviour
             clickable.onClicked += OnItemClicked;
         }
         fadeImage.GetComponent<Image>().material.SetFloat("_Scale", 0);
+        GameObject bgmInstance = GameObject.FindGameObjectWithTag("Sound");
+        if (bgmInstance == null)
+        {
+            bgmInstance = Instantiate(soundManager);
+        }
     }
 
     // Update is called once per frame
@@ -38,10 +45,15 @@ public class GameManager : MonoBehaviour
         if (isFadeOut)
         {
             scale += Time.deltaTime * FADE_SPEED;
-            if (scale > 3) isFadeOut = false;
+          
             fadeImage.GetComponent<Image>().material.SetFloat("_Scale", scale);
-            clearText.enabled = true;
-            clearText.GetComponent<Animation>().Play();
+            if (scale > 3)
+            {
+                isFadeOut = false;
+                clearText.enabled = true;
+                clearText.GetComponent<Animation>().Play();
+                GetComponent<AudioSource>().PlayOneShot(clear);
+            }
         }
     }
 
